@@ -753,8 +753,9 @@ export default function AttendanceView() {
 
     try {
       const res = await api._request('POST', '/attendance/holidays', holidayForm);
-      if (res && res.data && res.data.id) {
-        newHol.id = res.data.id;
+      const holId = res?.id || res?.data?.id;
+      if (holId) {
+        newHol.id = holId;
       }
       notify('success', `Holiday "${holidayForm.name}" added to all employee calendars.`);
     } catch {

@@ -107,9 +107,10 @@ export default function LoginPage() {
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Demo Accounts</p>
             <div className="space-y-2">
               {[
-                { email: 'admin@soilexlifescience.com', password: 'admin123', role: 'Admin' },
-                { email: 'hoan.vu@soilexlifescience.com', password: 'trade123', role: 'Trade Officer' },
-                { email: 'rajesh.s@soilexlifescience.com', password: 'qa123', role: 'QA Manager' },
+                { email: 'admin@soilexlifescience.com', password: 'admin123', role: 'Executive Admin' },
+                { email: 'priya.n@soilexlifescience.com', password: 'hr123', role: 'HR Manager' },
+                { email: 'hoan.vu@soilexlifescience.com', password: 'emp123', role: 'Sales & Export Emp' },
+                { email: 'rajesh.s@soilexlifescience.com', password: 'qa123', role: 'QA Lab Director' },
               ].map((cred, idx) => (
                 <button
                   key={idx}

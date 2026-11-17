@@ -39,8 +39,9 @@ export default function DebitCreditNotesView() {
     try {
       setLoading(true);
       const res = await api.getDebitCreditNotes(typeFilter, partyFilter, search);
-      if (res.success && res.data) {
-        setNotes(res.data || []);
+      const data = res?.data !== undefined ? res.data : res;
+      if (data) {
+        setNotes(Array.isArray(data) ? data : (data.notes || []));
       }
     } catch (err) {
       console.error('Error loading debit/credit notes:', err);
@@ -60,7 +61,7 @@ export default function DebitCreditNotesView() {
         ...form,
         amount: parseFloat(form.amount || 0)
       });
-      if (res.success) {
+      if (res) {
         setIsModalOpen(false);
         setForm({
           note_no: '',

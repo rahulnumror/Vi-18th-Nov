@@ -216,18 +216,28 @@ export default function MastersAdminView({ viewType = 'masters', initialTab = nu
       rows = commonPages.map(cp => ({ Name: cp.name, Key: cp.page_key, Type: cp.page_type, Details: cp.details }));
     } else if (activeTab === 'access_logs') {
       rows = accessLogs.map(l => ({ DateTime: l.date_time, User: l.user_name, Model: l.model_name, Event: l.event, URL: l.url }));
+    } else if (activeTab === 'locations') {
+      rows = locations.map(l => ({ Name: l.name, Branch: l.branch, Status: l.status }));
+    } else if (activeTab === 'transporters') {
+      rows = transporters.map(t => ({ Name: t.name, Phone: t.phone, Email: t.email, Address: t.address, Status: t.status }));
+    } else if (activeTab === 'countries') {
+      rows = countries.map(c => ({ Name: c.name, Code: c.code, Region: c.region, Status: c.status }));
     } else if (activeTab === 'users') {
       rows = users.map(u => ({ Name: u.name, Email: u.email, Role: u.role, Department: u.department, Status: u.status }));
     }
 
     if (!rows.length) return;
     const headers = Object.keys(rows[0]).join(',');
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows.map(r => Object.values(r).map(v => `"${v || ''}"`).join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = '\uFEFF' + [headers, ...rows.map(r => Object.values(r).map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', filename);
     document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     link.click();
     document.body.removeChild(link);
   };

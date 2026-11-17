@@ -252,7 +252,7 @@ export default function Sidebar({
       icon: ShieldCheck,
       isLeaf: false,
       items: [
-        { id: 'exp_qc_inspect', label: 'QC INSPECTION', target: 'masters', subTab: 'qc_party' },
+        { id: 'exp_qc_inspect', label: 'QC INSPECTION', target: 'masters', subTab: 'qc_parties' },
         { id: 'exp_qc_reports', label: 'QC REPORTS', target: 'reports', subTab: null }
       ]
     },

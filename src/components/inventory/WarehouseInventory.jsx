@@ -67,9 +67,10 @@ export default function WarehouseInventory({ initialTab = 'stock' }) {
       setLoading(true);
       if (activeTab === 'stock') {
         const res = await api.getInventoryItems(selectedWarehouse, null, search);
-        if (res.success && res.data) {
-          setItems(res.data.items || []);
-          if (res.data.metrics) setMetrics(res.data.metrics);
+        const data = res?.data !== undefined ? res.data : res;
+        if (data) {
+          setItems(data.items || (Array.isArray(data) ? data : []));
+          if (data.metrics) setMetrics(data.metrics);
         }
       } else if (['stock_in', 'delivery', 'delivery_note', 'returns'].includes(activeTab)) {
         let typeMap = {
@@ -79,13 +80,15 @@ export default function WarehouseInventory({ initialTab = 'stock' }) {
           returns: 'WH_RETURN'
         };
         const res = await api.getWarehouseTransactions(typeMap[activeTab], search);
-        if (res.success && res.data) {
-          setTransactions(res.data || []);
+        const data = res?.data !== undefined ? res.data : res;
+        if (data) {
+          setTransactions(Array.isArray(data) ? data : (data.transactions || []));
         }
       } else if (activeTab === 'damages') {
         const res = await api.getWarehouseDamages(null, search);
-        if (res.success && res.data) {
-          setDamages(res.data || []);
+        const data = res?.data !== undefined ? res.data : res;
+        if (data) {
+          setDamages(Array.isArray(data) ? data : (data.damages || []));
         }
       }
     } catch (err) {
@@ -115,7 +118,7 @@ export default function WarehouseInventory({ initialTab = 'stock' }) {
         status: 'IN_STOCK'
       };
       const res = await api.createInventoryItem(payload);
-      if (res.success) {
+      if (res) {
         setIsModalOpen(false);
         setFormData({
           item_code: '',
@@ -174,19 +177,22 @@ export default function WarehouseInventory({ initialTab = 'stock' }) {
     }
 
     if (!rows.length) return;
-    const headers = Object.keys(rows[0]).join(',');
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows.map(r => Object.values(r).join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const headers = Object.keys(rows[0]).map(h => `"${String(h).replace(/"/g, '""')}"`).join(',');
+    const csvRows = rows.map(r => Object.values(r).map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
+    const csvContent = '\uFEFF' + [headers, ...csvRows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `warehouse_${activeTab}_report.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 w-full min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

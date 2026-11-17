@@ -35,10 +35,14 @@ const EMPTY_FORM = {
   kyc_status: 'VERIFIED', payment_terms: '', credit_limit: '', email: '', phone: '',
 };
 
-export default function PartnersView() {
+export default function PartnersView({ defaultType = 'ALL' }) {
   const [partners, setPartners] = useState(FALLBACK_PARTNERS);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [activeTab, setActiveTab] = useState(defaultType || 'ALL');
+
+  useEffect(() => {
+    if (defaultType) setActiveTab(defaultType);
+  }, [defaultType]);
   const [search, setSearch] = useState('');
   const [notification, setNotification] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -152,7 +156,7 @@ export default function PartnersView() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-[#F8FAFC] min-h-screen">
+    <div className="p-4 sm:p-6 space-y-6 bg-[#F8FAFC] min-h-screen w-full max-w-full min-w-0">
       {/* Notification */}
       {notification && (
         <div className={`fixed top-4 right-4 z-[9999] flex items-center space-x-2 px-4 py-3 rounded-lg shadow-lg border text-xs font-bold transition-all ${notification.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-700'}`}>

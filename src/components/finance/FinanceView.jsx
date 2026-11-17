@@ -149,10 +149,11 @@ export default function FinanceView({ initialSubTab = 'dashboard' }) {
 
     try {
       const res = await api.updateSOStatus(soId, { status: newStatus });
-      if (res && res.data) {
-        setSalesOrders(prev => prev.map(so => so.id === soId ? { ...so, ...res.data } : so));
+      const soData = res?.data || res;
+      if (soData && soData.id) {
+        setSalesOrders(prev => prev.map(so => so.id === soId ? { ...so, ...soData } : so));
         if (selectedSO && selectedSO.id === soId) {
-          setSelectedSO(prev => (prev ? { ...prev, ...res.data } : null));
+          setSelectedSO(prev => (prev ? { ...prev, ...soData } : null));
         }
       } else {
         loadData();
@@ -289,9 +290,9 @@ export default function FinanceView({ initialSubTab = 'dashboard' }) {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 w-full max-w-full min-w-0">
       {/* Sub-Navigation */}
-      <div className="flex items-center space-x-1 bg-white rounded-xl shadow-sm border border-slate-200 p-1.5 flex-wrap">
+      <div className="flex items-center space-x-1 bg-white rounded-xl shadow-sm border border-slate-200 p-1.5 flex-wrap gap-y-1 overflow-x-auto">
         {subTabs.map(tab => {
           const Icon = tab.icon;
           return (

@@ -10,7 +10,8 @@ import {
   Shield,
   Sparkles,
   Building,
-  CheckCircle2
+  CheckCircle2,
+  Menu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -24,7 +25,7 @@ const DEFAULT_ACCOUNTS = [
   { label: 'Trần Quốc Bảo (Finance Emp)', email: 'bao.tran@soilexlifescience.com', role: 'EMPLOYEE' },
 ];
 
-export default function Navbar({ currentModule, onSelectModule, isSidebarCollapsed }) {
+export default function Navbar({ currentModule, onSelectModule, isSidebarCollapsed, onToggleSidebar }) {
   const { user, switchUser, logout } = useAuth();
   const [timerRunning, setTimerRunning] = useState(true);
   const [seconds, setSeconds] = useState(0);
@@ -115,13 +116,25 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
   const displayName = user?.fullName?.toUpperCase() || user?.name?.toUpperCase() || user?.email?.split('@')[0]?.toUpperCase() || 'SOILEX ADMIN';
 
   return (
-    <header className="sticky top-0 z-40 h-[68px] bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 flex items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all">
+    <header className="sticky top-0 z-40 h-[68px] bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all min-w-0 w-full max-w-full">
       {/* ─────────────────────────────────────────────────────────────
           LEFT: MODULE BREADCRUMB & COMMODITY CONTEXT
       ───────────────────────────────────────────────────────────── */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 shrink">
+        {/* Sidebar Toggle Hamburger */}
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            className="p-1.5 sm:p-2 text-slate-600 hover:text-[#1E40AF] hover:bg-slate-100 rounded-lg transition-colors shrink-0 focus:outline-none"
+            aria-label="Toggle Sidebar Navigation"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
         {/* Live Staging Dashboard Switcher Pill */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <select
             value={
               currentModule.includes('IMPORT') ? 'import_dashboard' :
@@ -134,7 +147,7 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
               'main'
             }
             onChange={(e) => onSelectModule(e.target.value)}
-            className="flex items-center space-x-2 bg-gradient-to-r from-[#1E40AF] to-indigo-800 text-white text-xs font-bold uppercase px-3.5 py-2 pr-8 rounded-lg shadow-sm border border-blue-900/20 cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex items-center space-x-2 bg-gradient-to-r from-[#1E40AF] to-indigo-800 text-white text-xs font-bold uppercase px-3 py-2 pr-7 rounded-lg shadow-sm border border-blue-900/20 cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-blue-400 max-w-[170px] sm:max-w-[210px] truncate"
           >
             <option value="main" className="bg-slate-900 text-white font-bold">EXPORT DASHBOARD ▾</option>
             <option value="import_dashboard" className="bg-slate-900 text-white font-bold">IMPORT DASHBOARD ▾</option>
@@ -146,14 +159,14 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
             <option value="masters" className="bg-slate-900 text-white font-bold">SYSTEM MASTERS ▾</option>
             <option value="hr_dashboard" className="bg-slate-900 text-white font-bold">HR WORKFORCE ▾</option>
           </select>
-          <ChevronDown className="w-3.5 h-3.5 text-white/90 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-white/90 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Commodity Category Dropdown */}
-        <div className="relative hidden md:block">
+        <div className="relative hidden xl:block shrink-0">
           <select 
             aria-label="Commodities & Spices Category"
-            className="text-xs uppercase font-semibold text-slate-700 bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200 rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-[#1E40AF] focus:ring-1 focus:ring-[#1E40AF] cursor-pointer appearance-none shadow-xs transition-colors"
+            className="text-xs uppercase font-semibold text-slate-700 bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200 rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-[#1E40AF] focus:ring-1 focus:ring-[#1E40AF] cursor-pointer appearance-none shadow-xs transition-colors max-w-[200px] truncate"
           >
             <option>ALL COMMODITIES & SPICES</option>
             <option>WHOLE SPICES (EXPORT & IMPORT)</option>
@@ -166,12 +179,12 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
         </div>
 
         {/* Fiscal Year Selector */}
-        <div className="relative hidden lg:block">
+        <div className="relative hidden 2xl:block shrink-0">
           <select 
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
             aria-label="Fiscal Year"
-            className="text-xs font-bold text-slate-700 bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200 rounded-lg px-3 py-2 pr-7 focus:outline-none focus:border-[#1E40AF] cursor-pointer appearance-none shadow-xs transition-colors"
+            className="text-xs font-bold text-slate-700 bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200 rounded-lg px-2.5 py-2 pr-7 focus:outline-none focus:border-[#1E40AF] cursor-pointer appearance-none shadow-xs transition-colors"
           >
             <option value="2026">FY 2026-27</option>
             <option value="2025">FY 2025-26</option>
@@ -183,9 +196,9 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
       {/* ─────────────────────────────────────────────────────────────
           RIGHT: DYNAMIC IAM SWITCHER, TIMER, PROFILE & ACTIONS
       ───────────────────────────────────────────────────────────── */}
-      <div className="flex items-center space-x-3 sm:space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
         {/* Live session timer with toggle */}
-        <div className="hidden sm:flex items-center space-x-2 bg-slate-50/90 border border-slate-200/80 rounded-full px-3 py-1 shadow-xs">
+        <div className="hidden lg:flex items-center space-x-2 bg-slate-50/90 border border-slate-200/80 rounded-full px-3 py-1 shadow-xs shrink-0">
           <button 
             onClick={() => setTimerRunning(!timerRunning)}
             title="Toggle Live Session Timer"
@@ -199,13 +212,13 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
         </div>
 
         {/* Dynamic IAM Role Switcher */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <select
             value={user?.email || 'admin@soilexlifescience.com'}
             onChange={handleSwitchAccount}
             disabled={isSwitching}
             aria-label="Switch IAM Login Role"
-            className="text-xs font-bold text-slate-900 bg-gradient-to-r from-blue-50 to-amber-50/40 hover:from-blue-100/70 hover:to-amber-100/50 border border-blue-200/90 rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-[#1E40AF] focus:ring-1 focus:ring-[#1E40AF] cursor-pointer appearance-none shadow-xs transition-all max-w-[210px] sm:max-w-none truncate"
+            className="text-xs font-bold text-slate-900 bg-gradient-to-r from-blue-50 to-amber-50/40 hover:from-blue-100/70 hover:to-amber-100/50 border border-blue-200/90 rounded-lg px-2.5 py-2 pr-7 focus:outline-none focus:border-[#1E40AF] focus:ring-1 focus:ring-[#1E40AF] cursor-pointer appearance-none shadow-xs transition-all max-w-[140px] sm:max-w-[180px] md:max-w-[210px] truncate"
           >
             {availableAccounts.map(acc => (
               <option key={acc.email} value={acc.email}>
@@ -213,11 +226,11 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
               </option>
             ))}
           </select>
-          <ChevronDown className="w-3.5 h-3.5 text-[#1E40AF] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#1E40AF] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Logged-in User Chip with Role Badge */}
-        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 bg-slate-50/80 border border-slate-200/80 rounded-lg shadow-xs">
+        <div className="hidden 2xl:flex items-center space-x-2 px-3 py-1.5 bg-slate-50/80 border border-slate-200/80 rounded-lg shadow-xs shrink-0">
           <span className="text-xs uppercase font-bold text-slate-800 tracking-wide">{displayName}</span>
           {user?.role && (
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
@@ -237,7 +250,7 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
         {/* User avatar with status indicator */}
         <div 
           onClick={() => onSelectModule(user?.role === 'EMPLOYEE' ? 'employee_portal' : 'main')}
-          className="relative flex items-center cursor-pointer group"
+          className="relative flex items-center cursor-pointer group shrink-0"
           title="Profile & Workspace"
         >
           <div className="w-8 h-8 rounded-full border-2 border-[#1E40AF] bg-white p-0.5 shadow-sm overflow-hidden flex items-center justify-center font-black text-xs text-[#1E40AF]">
@@ -254,7 +267,7 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
         {/* Notification Bell */}
         <button 
           title="Enterprise Notifications"
-          className="relative p-2 text-slate-500 hover:text-[#1E40AF] hover:bg-blue-50/70 rounded-lg transition-colors"
+          className="relative p-2 text-slate-500 hover:text-[#1E40AF] hover:bg-blue-50/70 rounded-lg transition-colors shrink-0"
         >
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-[#D97706] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
@@ -266,7 +279,7 @@ export default function Navbar({ currentModule, onSelectModule, isSidebarCollaps
         <button
           onClick={logout}
           title="Sign Out"
-          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-colors"
+          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-colors shrink-0"
         >
           <LogOut className="w-4 h-4" />
         </button>

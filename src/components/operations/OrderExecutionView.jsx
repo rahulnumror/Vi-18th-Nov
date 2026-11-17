@@ -65,19 +65,22 @@ export default function OrderExecutionView({ initialTab = 'executions' }) {
       setLoading(true);
       if (activeTab === 'executions') {
         const res = await api.getOrderExecutions(statusFilter, search);
-        if (res.success && res.data) {
-          setExecutions(res.data.executions || []);
-          if (res.data.metrics) setMetrics(res.data.metrics);
+        const data = res?.data !== undefined ? res.data : res;
+        if (data) {
+          setExecutions(data.executions || (Array.isArray(data) ? data : []));
+          if (data.metrics) setMetrics(data.metrics);
         }
       } else if (activeTab === 'documents') {
         const res = await api.getDocumentSubmissions(statusFilter, search);
-        if (res.success && res.data) {
-          setDocuments(res.data || []);
+        const data = res?.data !== undefined ? res.data : res;
+        if (data) {
+          setDocuments(Array.isArray(data) ? data : (data.documents || []));
         }
       } else if (activeTab === 'claims') {
         const res = await api.getDeliveryClaims(statusFilter, search);
-        if (res.success && res.data) {
-          setClaims(res.data || []);
+        const data = res?.data !== undefined ? res.data : res;
+        if (data) {
+          setClaims(Array.isArray(data) ? data : (data.claims || []));
         }
       }
     } catch (err) {
@@ -100,7 +103,7 @@ export default function OrderExecutionView({ initialTab = 'executions' }) {
         total_amount: parseFloat(formExec.total_amount || 0)
       };
       const res = await api.createOrderExecution(payload);
-      if (res.success) {
+      if (res) {
         setIsModalOpen(false);
         setFormExec({
           po_no: '',
@@ -161,19 +164,22 @@ export default function OrderExecutionView({ initialTab = 'executions' }) {
     }
 
     if (!rows.length) return;
-    const headers = Object.keys(rows[0]).join(',');
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows.map(r => Object.values(r).join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const headers = Object.keys(rows[0]).map(h => `"${String(h).replace(/"/g, '""')}"`).join(',');
+    const csvRows = rows.map(r => Object.values(r).map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
+    const csvContent = '\uFEFF' + [headers, ...csvRows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `operations_${activeTab}_report.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 w-full min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

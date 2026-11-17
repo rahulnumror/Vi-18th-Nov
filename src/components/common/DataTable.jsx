@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   ChevronDown,
@@ -96,8 +96,8 @@ export default function DataTable({
   const totalEntries = sortedData.length;
   const totalPages = Math.max(1, Math.ceil(totalEntries / pageSize));
 
-  // Reset page when search changes
-  useMemo(() => {
+  // Reset page when search or total pages changes
+  useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(1);
     }
@@ -131,15 +131,17 @@ export default function DataTable({
         .join(',');
     });
 
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     const safeTitle = (title || 'export').toLowerCase().replace(/[^a-z0-9]/g, '_');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `${safeTitle}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Generate page numbers with ellipsis
@@ -165,7 +167,7 @@ export default function DataTable({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col w-full max-w-full">
       {/* ─────────────────────────────────────────────────────────────
           TOP TOOLBAR: SEARCH, ENTRIES SELECTOR & ACTIONS
       ───────────────────────────────────────────────────────────── */}
@@ -247,7 +249,7 @@ export default function DataTable({
       {/* ─────────────────────────────────────────────────────────────
           TABLE BODY & HEADERS
       ───────────────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto min-h-[240px]">
+      <div className="overflow-x-auto min-h-[240px] w-full">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/80 border-b border-slate-200">

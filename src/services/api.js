@@ -120,8 +120,20 @@ class ApiService {
     return this._request('GET', '/trade/shipments');
   }
 
+  async createShipment(shipment) {
+    return this._request('POST', '/trade/shipments', shipment);
+  }
+
   async getContainers() {
     return this._request('GET', '/trade/containers');
+  }
+
+  async createContainer(container) {
+    return this._request('POST', '/trade/containers', container);
+  }
+
+  async updateContainerStatus(id, newStatus) {
+    return this._request('PATCH', `/trade/containers/${id}/status?new_status=${encodeURIComponent(newStatus)}`);
   }
 
   // ──────────────────── Partners ────────────────────

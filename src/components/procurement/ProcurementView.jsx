@@ -158,7 +158,7 @@ export default function ProcurementView({ initialSubTab = 'dashboard' }) {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 w-full max-w-full min-w-0">
       {/* Sub-Navigation */}
       <div className="flex items-center space-x-1 bg-white rounded-xl shadow-sm border border-slate-200 p-1.5">
         {subTabs.map(tab => {

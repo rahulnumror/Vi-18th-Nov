@@ -312,7 +312,7 @@ export default function TradeView({ type = 'export', initialTab = 'CONTRACTS' })
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6 w-full max-w-full min-w-0">
       {/* Notification */}
       {notification && (
         <div className={`fixed top-4 right-4 z-[9999] flex items-center space-x-2 px-4 py-3 rounded-lg shadow-lg border text-xs font-bold transition-all ${notification.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-700'}`}>

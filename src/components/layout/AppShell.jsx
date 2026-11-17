@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import MainDashboard from '../dashboard/MainDashboard';
@@ -24,6 +24,8 @@ import FinanceView from '../finance/FinanceView';
 import AssetManagement from '../assets/AssetManagement';
 import WarehouseInventory from '../inventory/WarehouseInventory';
 import OrderExecutionView from '../operations/OrderExecutionView';
+import AiCopilotDrawer from '../copilot/AiCopilotDrawer';
+import { Sparkles } from 'lucide-react';
 
 export default function AppShell() {
   const { user } = useAuth();
@@ -31,7 +33,23 @@ export default function AppShell() {
     return user?.role === 'EMPLOYEE' ? 'employee_portal' : 'main';
   });
   const [activeSubTab, setActiveSubTab] = useState(null);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1200;
+    }
+    return false;
+  });
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024 && !isSidebarCollapsed) {
+        setIsSidebarCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSidebarCollapsed]);
 
   const handleSelectTab = (tab, subTab = null) => {
     setActiveTab(tab);
@@ -175,7 +193,7 @@ export default function AppShell() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex">
+    <div className="min-h-screen bg-[#F8FAFC] flex w-full max-w-full overflow-x-hidden">
       {/* Sidebar Navigation */}
       <Sidebar 
         activeTab={activeTab}
@@ -187,7 +205,7 @@ export default function AppShell() {
 
       {/* Main Content Area */}
       <div 
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        className={`flex-1 flex flex-col min-h-screen min-w-0 w-full max-w-full overflow-x-hidden transition-all duration-300 ${
           isSidebarCollapsed ? 'ml-[72px]' : 'ml-[264px]'
         }`}
       >
@@ -195,9 +213,10 @@ export default function AppShell() {
           currentModule={getModuleTitle(activeTab)}
           onSelectModule={handleSelectTab}
           isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden">
           <ErrorBoundary
             key={`${activeTab}-${activeSubTab || 'root'}`}
             fallbackMessage="An unexpected issue occurred while rendering this module. You can reload or navigate back to the home overview."
@@ -207,6 +226,36 @@ export default function AppShell() {
           </ErrorBoundary>
         </main>
       </div>
+
+      {/* Floating AI Copilot Trigger Pill */}
+      <div className="fixed bottom-5 right-5 z-40">
+        <button
+          onClick={() => setIsCopilotOpen(true)}
+          className="group flex items-center space-x-2.5 px-4 py-2.5 bg-gradient-to-r from-[#0F172A] via-[#1E3A8A] to-[#1E40AF] text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-blue-400/30"
+          title="Open SOILEX Executive AI Copilot"
+        >
+          <div className="w-6 h-6 rounded-full bg-amber-400/20 text-amber-300 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+          </div>
+          <div className="flex flex-col text-left">
+            <span className="text-xs font-bold tracking-wide flex items-center gap-1.5">
+              SOILEX Copilot
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-mono font-normal">
+                AI
+              </span>
+            </span>
+            <span className="text-[9px] text-blue-200">
+              {user?.role === 'ADMIN' ? 'Executive Clearance' : `${user?.role || 'User'} Scope`}
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* AI Copilot Drawer */}
+      <AiCopilotDrawer 
+        isOpen={isCopilotOpen} 
+        onClose={() => setIsCopilotOpen(false)} 
+      />
     </div>
   );
 }

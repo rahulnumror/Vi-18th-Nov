@@ -30,8 +30,9 @@ export default function BuyerAgingReportView() {
     try {
       setLoading(true);
       const res = await api.getBuyerAgingReport();
-      if (res.success && res.data) {
-        setData(res.data);
+      const data = res?.data !== undefined ? res.data : res;
+      if (data) {
+        setData(data);
       }
     } catch (err) {
       console.error('Error fetching aging report:', err);
@@ -59,20 +60,22 @@ export default function BuyerAgingReportView() {
       b.days_90_plus,
       b.total
     ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `buyer_aging_report_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <p className="text-xs font-semibold text-slate-500 uppercase">Total Receivables</p>
           <h3 className="text-xl font-bold text-slate-900 mt-1">${(data.summary?.grandTotal || 0).toLocaleString()}</h3>

@@ -43,18 +43,20 @@ export default function ImportDashboard({ onNavigate }) {
       ['Supplier Advance Paid', '4,200,000,000 VND', 'Supplier Payment']
     ];
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + data.map(e => e.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = '\uFEFF' + data.map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `import_dashboard_summary_${selectedYear}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto w-full min-w-0">
       {/* Top Header & Filters */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
